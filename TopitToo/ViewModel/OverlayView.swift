@@ -104,7 +104,9 @@ struct OverlayView: View {
                             stopCapture()
                         }
                     }
-            }.opacity(opacity)
+            }
+            .opacity(opacity)
+            .allowsHitTesting(opacity != 0)
             if !resizing {
                 VStack(alignment: buttonPosition < 2 ? .leading : .trailing) {
                     if buttonPosition % 2 == 0 {
@@ -286,9 +288,18 @@ struct OverlayView: View {
                             nsWindow?.setFrame(CGRectTransform(cgRect: frame), display: true)
                             windowSize = frame.size
                         } else {
-                            if !overView && !pausing {
-                                if !capturing { restartCapture() }
-                                opacity = 1
+                            if !pausing {
+                                if opacity == 0 {
+                                    let mouseLocation = NSEvent.mouseLocation
+                                    let mouseInWindow = newFrame.contains(mouseLocation)
+                                    if !mouseInWindow && !overButtons {
+                                        opacity = 1
+                                        restartCapture()
+                                    }
+                                } else if !overView {
+                                    if !capturing { restartCapture() }
+                                    opacity = 1
+                                }
                             }
                             if pausing { nsWindow?.order(.above, relativeTo: Int(window.windowID)) }
                             resizing = false
