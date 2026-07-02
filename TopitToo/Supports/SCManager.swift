@@ -145,7 +145,7 @@ class ScreenCaptureManager: NSObject, ObservableObject, SCStreamDelegate, SCStre
 class SCManager {
     static var pinnedWdinwows = [SCWindow]()
     static var availableContent: SCShareableContent?
-    static private let excludedApps = ["", "com.apple.dock", "com.apple.screencaptureui", "com.apple.controlcenter", "com.apple.notificationcenterui", "com.apple.systemuiserver", "com.apple.WindowManager", "dev.mnpn.Azayaka", "com.gaosun.eul", "com.pointum.hazeover", "net.matthewpalmer.Vanilla", "com.dwarvesv.minimalbar", "com.bjango.istatmenus.status", "com.macpaw.CleanMyMac4", "com.lihaoyun6.TopitToo"]
+    static private let excludedApps = ["", "com.apple.dock", "com.apple.screencaptureui", "com.apple.controlcenter", "com.apple.notificationcenterui", "com.apple.systemuiserver", "com.apple.WindowManager", "dev.mnpn.Azayaka", "com.gaosun.eul", "com.pointum.hazeover", "net.matthewpalmer.Vanilla", "com.dwarvesv.minimalbar", "com.bjango.istatmenus.status", "com.macpaw.CleanMyMac4", "com.arnozxchen.TopitToo"]
     
     static func updateAvailableContentSync() -> SCShareableContent? {
         let semaphore = DispatchSemaphore(value: 0)
@@ -165,8 +165,9 @@ class SCManager {
             if let error = error {
                 switch error {
                 case SCStreamError.userDeclined:
-                    DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
-                        self.updateAvailableContent() {_ in}
+                    print("Screen recording permission denied. Retrying after user grants permission.".local)
+                    DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
+                        self.updateAvailableContent { _ in }
                     }
                 default:
                     print("Error: failed to fetch available content: ".local, error.localizedDescription)

@@ -83,8 +83,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         tips("TopitToo uses the accessibility permissions\nand screen recording permissions\nto control and capture your windows.".local, id: "topit.how-to-use.note")
         tips("macOS will prevent any notifications from appearing while TopitToo is running\nIt's not a bug or TopitToo's fault!".local, id: "topit.no-notifications.note")
-        scPerm = SCManager.updateAvailableContentSync() != nil
-        axPerm = AXIsProcessTrustedWithOptions([kAXTrustedCheckOptionPrompt.takeRetainedValue(): true] as NSDictionary)
+        // Check AX permission — prompt only if not yet granted
+        axPerm = AXIsProcessTrusted()
+        if !axPerm {
+            axPerm = AXIsProcessTrustedWithOptions([kAXTrustedCheckOptionPrompt.takeRetainedValue(): true] as NSDictionary)
+        }
+        // Check Screen Recording permission asynchronously to avoid blocking launch
+        SCManager.updateAvailableContent { content in
+            DispatchQueue.main.async {
+                scPerm = content != nil
+            }
+        }
     }
     
     func applicationDidFinishLaunching(_ notification: Notification) {

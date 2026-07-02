@@ -4,6 +4,7 @@
 
 ## User settings
 xcuserdata/
+.DS_Store
 
 ## Local engineering files
 docs/
